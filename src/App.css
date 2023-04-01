@@ -63,9 +63,15 @@ main{
   border-bottom: 1px solid lightslategray;
 }
 
+.gas{
+  color: #2981e3;
+  border: 1px solid #2981e3;
+  padding: 2px 5px;
+  border-radius: 6px;
+}
 
 /* Small devices (portrait tablets and large phones, 600px and up) */
-@media only screen and (max-width: 800px) {
+@media only screen and (max-width: 890px) {
   main{
     margin: 20px;
   }
@@ -88,8 +94,14 @@ main{
   }
 
   .img-eth{
-    height: 200px;
+    height: 250px;
     width: auto;
     object-fit: cover;
+  }
+
+  .gas{
+    color: #2981e3;
+    border: none;
+    padding: 0px;
   }
 }

@@ -7,22 +7,38 @@ import { useEffect, useState } from 'react';
 import alchemy from '../alchemy_server';
 
 function LastTables(props) {
-    const [block, setBlock] = useState({transactions:[]})
+    const [blocks, setBlocks] = useState([])
 
-    useEffect(()=>{
-        async function getBlocks(){
+    const transformGas = (gas) => {
+        gas = parseInt(gas._hex, 16).toString()//wei
+        gas = gas.slice(0,2) + '.' + gas.slice(2,3)
+        return gas
+    }
+
+    useEffect(()=> {
+        async function getBlocks(blockN){
+            let response = await alchemy.core.getBlock(blockN)
+            return response
+        }
+
+        async function generateBlocks(){
             if(props.blockNumber){
-                let response = await alchemy.core.getBlock(props.blockNumber)
-                //Logging the response to the console
-                setBlock(response)
-                console.log(response)
+                for (let index = 0; index < 5; index++) {
+                    const currentBlock = props.blockNumber - index
+                    let responeBlock = await getBlocks(currentBlock)
+                    responeBlock = {...responeBlock, gasUsed: transformGas(responeBlock.gasUsed)}
+                    setBlocks(prevState => [...prevState, responeBlock])
+                }
+                
             }
         }
-        getBlocks();
+    
+        generateBlocks()        
     }, [props.blockNumber])
     
     return (
         <Container fluid className='mt-5'>
+            
             <Row>
                 <Col className='bg-light me-md-3 table' >
                     <Container fluid>
@@ -31,18 +47,26 @@ function LastTables(props) {
                                 Ultimate Blocks
                             </Col>
                         </Row>
-                        <Row>
-                            <Col xs={1}><i className="fa-solid fa-cube fs-4"></i></Col>
-                            <Col xs={3}>16914323</Col>
-                            <Col xs={6}>Fee Recipient lightspeedbuilder 2</Col>
-                            <Col xs={2}>0.02493 Eth</Col>
-                        </Row>
-                        <Row>
-                            <Col xs={1}><i className="fa-solid fa-cube fs-4"></i></Col>
-                            <Col xs={3}>{block.number}</Col>
-                            <Col xs={6}>{block.transactions.length} txs</Col>
-                            <Col xs={2}>0.02493 Eth</Col>
-                        </Row>
+
+                        {blocks.map( (item, index) => {
+                            return (
+                            <Row key={index}>
+                                <Col xs={1}><i className="fa-solid fa-cube fs-4"></i></Col>
+                                <Col xs={3}>
+                                    <div><strong>Block No.</strong></div>
+                                    <div>{item.number}</div>
+                                </Col>
+                                <Col xs={6}>
+                                    <div><strong>Txs No. and Timestamp</strong></div>
+                                    Contains {item.transactions.length} txs, created at {item.timestamp}
+                                </Col>
+                                <Col xs={2}>
+                                    <div><strong>Total Gas Used</strong></div>
+                                    <div ><span className='gas'>{item.gasUsed} M</span></div>
+                                </Col>
+                            </Row>
+                            )
+                        })}
                     </Container>
                 </Col>
                 <Col className='bg-light table'>
