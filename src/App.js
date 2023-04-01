@@ -4,14 +4,20 @@ import BlocksScreen from './pages/BlocksScreen';
 
 import Home from './pages/Home';
 import Headers from './components/Header'
+
+import './App.css';
+
 function App() {
   return (
     <>
       <Headers/>
-      <Routes>
-        <Route path='/' element={<Home/>}/>
-        <Route path='/blocks' element={<BlocksScreen/>}/>
-      </Routes>
+      <main className="">
+        <Routes>
+          <Route path='/' element={<Home/>}/>
+          <Route path='/blocks' element={<BlocksScreen/>}/>
+        </Routes>
+      </main>
+      
     </>
   )
 }

@@ -5,6 +5,7 @@
 p{
   margin: 0px;
 }
+
 main{
   margin: 50px 200px;
 }
@@ -60,4 +61,35 @@ main{
 
 .table-title{
   border-bottom: 1px solid lightslategray;
+}
+
+
+/* Small devices (portrait tablets and large phones, 600px and up) */
+@media only screen and (max-width: 800px) {
+  main{
+    margin: 20px;
+  }
+  .info1{
+    border-right: none;
+    border-bottom: 1px solid lightslategray;
+  }
+  
+  .info2{
+    border-bottom: 1px solid lightslategray;
+  }
+  
+  .info3{
+    border-bottom: 1px solid lightslategray;
+    border-right:none;
+  }
+
+  .col{
+    width: 100vw;
+  }
+
+  .img-eth{
+    height: 200px;
+    width: auto;
+    object-fit: cover;
+  }
 }

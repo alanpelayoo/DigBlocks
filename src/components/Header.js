@@ -18,8 +18,8 @@ function Header() {
               className="d-inline-block align-top"
             />{' '}
           </Navbar.Brand>
-          <Navbar.Collapse id="basic-navbar-nav">
-            <Nav className="me-auto">
+          <Navbar.Collapse id="basic-navbar-nav" className='links'>
+            <Nav className="me-auto d-none d-md-flex">
               <LinkContainer to=''> 
                 <Nav.Link>Home</Nav.Link>
               </LinkContainer>
