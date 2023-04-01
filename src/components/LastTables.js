@@ -1,5 +1,6 @@
 import React from 'react'
 
+import { Utils } from 'alchemy-sdk';
 import { Container, Row, Col } from 'react-bootstrap'
 import { useEffect, useState } from 'react';
 
@@ -16,6 +17,12 @@ function LastTables(props) {
         gas = parseInt(gas._hex, 16).toString()//wei
         gas = gas.slice(0,2) + '.' + gas.slice(2,3)
         return gas
+    }
+
+    const transformWei = (wei) => {
+        wei = parseInt(wei._hex, 16).toString()//wei
+        const eth = Utils.formatUnits(wei, "ether"); 
+        return eth
     }
 
     useEffect(()=> {
@@ -40,8 +47,6 @@ function LastTables(props) {
                     let responeBlock = await getBlocks(currentBlock)
                     if(index === 0 ){
                         txsToWork = responeBlock.transactions.slice(0,5)
-                        console.log("Workin on ", txsToWork)
-                       
                     }
                     responeBlock = {...responeBlock, gasUsed: transformGas(responeBlock.gasUsed)}
                     setBlocks(prevState => [...prevState, responeBlock])
@@ -54,7 +59,8 @@ function LastTables(props) {
             if(txs){
                 for (let index = 0; index < 5; index++) {
                     const currentTransaction = txs[index]
-                    const responseT = await getTransaction(currentTransaction)
+                    let responseT = await getTransaction(currentTransaction)
+                    responseT = {...responseT, value:transformWei(responseT.value)}
                     setTransactions(prevState => [...prevState, responseT])
                 }
             }
@@ -122,8 +128,8 @@ function LastTables(props) {
                                         <div><strong>To </strong>{ite.to.slice(0,12)}...</div>
                                     </Col>
                                     <Col xs={2}>
-                                        <div><strong>Total Gas Used</strong></div>
-                                        <div ><span className='gas'>12 M</span></div>
+                                        <div><strong>Value</strong></div>
+                                        <div ><span className='gas'>{ite.value.slice(0,4)} ETH</span></div>
                                     </Col>
                                         
                                 </Row>
