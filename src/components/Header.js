@@ -23,17 +23,17 @@ function Header() {
               <LinkContainer to=''> 
                 <Nav.Link>Home</Nav.Link>
               </LinkContainer>
-              <LinkContainer to='/nfts'> 
-                <Nav.Link>NFTs</Nav.Link>
-              </LinkContainer>
               <LinkContainer to='/blocks'> 
                 <Nav.Link>Blocks</Nav.Link>
               </LinkContainer>
-              <LinkContainer to='/trans'> 
+              <LinkContainer to='/txs'> 
                 <Nav.Link>Transactions</Nav.Link>
               </LinkContainer>
               <LinkContainer to='/addresses'> 
                 <Nav.Link>Addresses</Nav.Link>
+              </LinkContainer>
+              <LinkContainer to='/nfts'> 
+                <Nav.Link>NFTs</Nav.Link>
               </LinkContainer>
             </Nav>
           </Navbar.Collapse>

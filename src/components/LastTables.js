@@ -1,9 +1,9 @@
 import React from 'react'
 
 import { Utils } from 'alchemy-sdk';
-import { Container, Row, Col } from 'react-bootstrap'
+import { Container, Row, Col, Button } from 'react-bootstrap'
 import { useEffect, useState } from 'react';
-
+import { Link } from 'react-router-dom'
 
 import alchemy from '../alchemy_server';
 
@@ -26,7 +26,6 @@ function LastTables(props) {
     }
 
     useEffect(()=> {
-        
         //Gets block information.
         async function getBlocks(blockN){
             let response = await alchemy.core.getBlock(blockN)
@@ -72,12 +71,10 @@ function LastTables(props) {
         }
 
         main()
-        
     }, [props.blockNumber])
 
     return (
         <Container fluid className='mt-5'>
-            
             <Row>
                 <Col className='bg-light me-md-3 table' >
                     <Container fluid>
@@ -106,6 +103,13 @@ function LastTables(props) {
                             </Row>
                             )
                         })}
+                        <Row>
+                            <Col  className=' d-flex justify-content-center'>
+                                <Link to={'/blocks'}>
+                                    <Button variant="link">Check all blocks <i className="fa-solid fa-arrow-right"></i></Button>{' '}
+                                </Link>
+                            </Col>
+                        </Row>
                     </Container>
                 </Col>
                 <Col className='bg-light table'>
@@ -135,9 +139,17 @@ function LastTables(props) {
                                 </Row>
                             )
                         })}
+                        <Row>
+                            <Col className=' d-flex justify-content-center'>
+                                <Link to={'/txs'}>
+                                    <Button variant="link">Check all txs <i className="fa-solid fa-arrow-right"></i></Button>{' '}
+                                </Link>  
+                            </Col>
+                        </Row>
                     </Container>
                 </Col>
             </Row>
+            
         </Container>
   )
 }

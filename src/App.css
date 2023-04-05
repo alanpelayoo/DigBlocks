@@ -70,6 +70,15 @@ main{
   border-radius: 6px;
 }
 
+.seach-form{
+  display:flex;
+  width: 50%;
+}
+
+.select-div{
+  display: flex;
+}
+
 /* Small devices (portrait tablets and large phones, 600px and up) */
 @media only screen and (max-width: 890px) {
   main{
@@ -103,5 +112,9 @@ main{
     color: #2981e3;
     border: none;
     padding: 0px;
+  }
+  .seach-form{
+    display:flex;
+    width: 100%;
   }
 }
