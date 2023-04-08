@@ -1,16 +1,14 @@
 import React, { useEffect, useState } from 'react'
 
-import { Utils } from 'alchemy-sdk';
 import {Button, Container, Form, Row, Col, Pagination} from 'react-bootstrap';
-import { Link } from 'react-router-dom'
 
 import alchemy from '../alchemy_server';
-
-const items = [1,2,3]
 
 function BlocksScreen() {
   const [blocks, setBlocks] = useState([])
   const [numberB, setNumberB] = useState(5)
+  const [page, setPage] = useState("1")
+  const [pages, setPages] = useState({1:[]})
 
   const transformGas = (gas) => {
     gas = parseInt(gas._hex, 16).toString()//wei
@@ -18,6 +16,7 @@ function BlocksScreen() {
     return gas
   }
 
+  
   useEffect(() =>{
     
     async function getBlocks(blockN){
@@ -25,21 +24,58 @@ function BlocksScreen() {
       return response
     }
 
-    async function main(){
+    async function generateBlocks(){
+      console.log("generating blocks")
       const latestBlock = await alchemy.core.getBlockNumber();
-
-      for (let index = 0; index < numberB; index++) {
+      const localBlocks = []
+      
+      for (let index = 0; index < 50; index++) {
         const currentBlock = latestBlock - index
         let responeBlock = await getBlocks(currentBlock)
 
         responeBlock = {...responeBlock, gasUsed: transformGas(responeBlock.gasUsed), gasLimit: transformGas(responeBlock.gasLimit)}
         setBlocks(prevState => [...prevState, responeBlock])
       }
+      console.log("Finished generating blocks")
     }
-    setBlocks([])
-    main()
-  }, [numberB])
 
+    function generatePages(){
+      console.log("generating pages")
+      let page = 0
+      const pagesC = {}
+      const blocksCopy = [...blocks]
+      
+      while (true) {
+        if (blocksCopy.length === 0){
+            break
+        }
+        page += 1
+        pagesC[page] = []
+
+        for (let index = 0; index < numberB; index++) {
+            if (blocksCopy.length === 0){
+                break
+            }
+            const element = blocksCopy.shift()
+            pagesC[page].push(element)
+        }
+      }
+      setPages(pagesC)
+    }
+
+    async function main(){
+      setPage(1)
+      if(blocks.length === 0){
+        await generateBlocks()
+      }
+      generatePages()
+      
+    }
+    
+    main()
+  }, [numberB, blocks])
+
+  
   return (
     <div className='text-center'>
       <h1> <i className="fa-solid fa-cube fs-2 me-2"></i>Blocks</h1>
@@ -84,7 +120,7 @@ function BlocksScreen() {
                 </Col>
               </Row>
 
-              {blocks.map( (item, index) => {
+              {pages[page].map( (item, index) => {
               return (
                 <Row key={index}>
                   <Col xs={1} md={1}><i className="fa-solid fa-cube fs-4"></i></Col>
@@ -120,6 +156,16 @@ function BlocksScreen() {
             </Container>
           </Col>
         </Row>
+        <Pagination>
+          {Object.keys(pages).map((it,idx)=>{
+            return(
+              <Pagination.Item key={idx} active={parseInt(it) === parseInt(page)} onClick={() => setPage(it)}>
+                {it}
+              </Pagination.Item> 
+            )
+           })
+          }
+        </Pagination>
         
       </Container>
     </div>
