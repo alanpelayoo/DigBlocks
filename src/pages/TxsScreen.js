@@ -6,17 +6,67 @@ import alchemy from '../alchemy_server';
 
 import { Utils } from 'alchemy-sdk';
 
+import { Link, useNavigate } from 'react-router-dom'
+
 function TxsScreen() {
   const [transactions, setTranasactions] = useState([])
   const [numberT, setNumberT] = useState(10)
   const [page, setPage] = useState("1")
   const [pages, setPages] = useState({1:[]})
   const [loading, setLoading] = useState(false)
+  const [search, setSearch] = useState("")
+  const [badSearch, setbadSearch] = useState(false)
+
+  const navigate = useNavigate();
 
   const transformWei = (wei) => {
     wei = parseInt(wei._hex, 16).toString()//wei
     const eth = Utils.formatUnits(wei, "ether"); 
     return eth
+  }
+
+  const txsRows = pages[page].map( (item, index) => {
+    return (
+      <Row key={index}>
+        <Col xs={1} md={1}><i className="fa-solid fa-note-sticky fs-4"></i></Col>
+        <Col  md={1} className="d-none d-md-block">
+          <div><strong>Txn Index.</strong></div>
+          <div>{item.transactionIndex}</div>
+       </Col>
+       <Col md={3} className="d-none d-md-block">
+          <div><strong>From: </strong>{item.from.slice(0,20)}..</div>
+          <div><strong>To:</strong>{item.to.slice(0,20)}..</div>
+        </Col>
+        <Col xs={7} md={2}>
+          <div><strong>Hash</strong></div>
+          <Link to={`/txs/${item.hash}`}>
+            {item.hash.slice(0,20)}..
+          </Link>
+        </Col>
+        <Col  md={2} className="d-none d-md-block">
+          <div><strong>Block No.</strong></div>
+          <div>{item.blockNumber}</div>
+        </Col>
+        <Col  md={1} className="d-none d-md-block">
+          <div><strong>Confirmations</strong></div>
+          <div>{item.confirmations}</div>
+        </Col>
+        <Col xs={4} md={2}>
+          <div><strong>Value</strong></div>
+          <div ><span className='gas'>{item.value.slice(0,7)} ETH</span></div>
+        </Col>
+      </Row>
+  )})
+
+  const submitHandler = (e) => {
+    e.preventDefault()
+    
+    if(!search){
+      setbadSearch(true)
+    }else{
+      navigate(`/txs/${search}`);
+    }
+    
   }
 
   useEffect(() => {
@@ -36,12 +86,12 @@ function TxsScreen() {
     }
 
     async function generateTransactions(){
-      
       const latestBlock = await alchemy.core.getBlockNumber();
       let response = await alchemy.core.getBlockWithTransactions(latestBlock)
       let txs = response.transactions
       txs = await normalizeTransactions(txs)
       setTranasactions(txs)
+      
     }
 
     function generatePages(){
@@ -49,6 +99,7 @@ function TxsScreen() {
       let page = 0
       const pagesC = {}
       const txsCopy = [...transactions]
+      
       
       while (true) {
         if (txsCopy.length === 0){
@@ -65,16 +116,19 @@ function TxsScreen() {
             pagesC[page].push(element)
         }
       }
+      
       setPages(pagesC)
     }
 
     async function main(){
       setPage(1)
       if(transactions.length === 0){
+        setLoading(true)
         await generateTransactions()
+        
       }
       generatePages()
-      
+      setLoading(false)
     }
     main()
 
@@ -86,13 +140,14 @@ function TxsScreen() {
       <h3>Search for specifics transactions.</h3>
 
       <Container className='d-flex justify-content-center' fluid>
-        <Form className='seach-form'>
-          <Form.Control placeholder="Transaction number or hash"/>
+        <Form className='seach-form' onSubmit={submitHandler}>
+          <Form.Control placeholder="Transaction hash"value={search} onChange={(e) => setSearch(e.target.value)} />
           <Button variant="primary ms-3" type="submit" className='d-flex align-items-center'>
             <i className="fa-solid fa-magnifying-glass icon-button me-1"></i> Search
           </Button>
         </Form>
       </Container>
+      {badSearch ? <p className='empty-search mt-1'>Your search was empty lol. 🚨</p> : null}
 
       <Container fluid className='mt-5'>
         <Row>
@@ -118,36 +173,10 @@ function TxsScreen() {
                 </Col>
               </Row>
 
-              {pages[page].map( (item, index) => {
-                return (
-                  <Row key={index}>
-                    <Col xs={1} md={1}><i className="fa-solid fa-note-sticky fs-4"></i></Col>
-                    <Col  md={1} className="d-none d-md-block">
-                      <div><strong>Txn Index.</strong></div>
-                      <div>{item.transactionIndex}</div>
-                   </Col>
-                   <Col xs={7} md={3} >
-                      <div><strong>From: </strong>{item.from.slice(0,20)}..</div>
-                      <div><strong>To:</strong>{item.to.slice(0,20)}..</div>
-                    </Col>
-                    <Col  md={2} className="d-none d-md-block">
-                      <div><strong>Hash</strong></div>
-                      <div>{item.hash.slice(0,20)}..</div>
-                    </Col>
-                    <Col  md={2} className="d-none d-md-block">
-                      <div><strong>Block No.</strong></div>
-                      <div>{item.blockNumber}</div>
-                    </Col>
-                    <Col  md={1} className="d-none d-md-block">
-                      <div><strong>Confirmations</strong></div>
-                      <div>{item.confirmations}</div>
-                    </Col>
-                    <Col xs={4} md={2}>
-                      <div><strong>Value</strong></div>
-                      <div ><span className='gas'>{item.value.slice(0,7)} ETH</span></div>
-                    </Col>
-                  </Row>
-                )})
+              {
+                loading ? (
+                  <Spinner animation="grow"  className='mt-3'/>
+                ): txsRows
               }
                 
             </Container>
@@ -163,9 +192,7 @@ function TxsScreen() {
            })
           }
         </Pagination>
-        <Spinner animation="border" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </Spinner>
+        
       </Container>
 
 

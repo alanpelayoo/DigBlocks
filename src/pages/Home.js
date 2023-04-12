@@ -37,12 +37,12 @@ function Home() {
     return (
       <div>
         <h1>Welcome to DigBlocks.</h1>
-        <h4 className='description'>The ultimate ethereum blockchain explorer.</h4>
+        <h4 className='description'>The ultimate ethereum blockchain explorer. </h4>
 
         <Card className="bg-dark text-white mb-5 eth-world">
           <Card.Img src="/eth-portrait.jpeg" alt="Card image" className='img-eth'/>
           <Card.ImgOverlay>
-            <Card.Title>Explore The Ethereum World</Card.Title>
+            <Card.Title>Explore The Ethereum World 🌌</Card.Title>
             <Card.Text>
             Unlock the mysteries of the Ethereum blockchain with our explorer - direct access to the network's nodes for unparalleled transparency and insight!
             </Card.Text>

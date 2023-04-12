@@ -1,7 +1,7 @@
 import React from 'react'
 
 import { Utils } from 'alchemy-sdk';
-import { Container, Row, Col, Button } from 'react-bootstrap'
+import { Container, Row, Col, Button, Spinner } from 'react-bootstrap'
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom'
 
@@ -11,6 +11,7 @@ function LastTables(props) {
 
     const [blocks, setBlocks] = useState([])
     const [transactions, setTransactions] = useState([])
+    const [loading, setLoading] = useState(false)
 
     //Transforms gas used, hex to dec expressed in M.
     const transformGas = (gas) => {
@@ -24,6 +25,55 @@ function LastTables(props) {
         const eth = Utils.formatUnits(wei, "ether"); 
         return eth
     }
+
+    const blocksComponent = blocks.map( (item, index) => {
+        return (
+        <Row key={index}>
+            <Col xs={1}><i className="fa-solid fa-cube fs-4"></i></Col>
+            <Col xs={3}>
+                <div><strong>Block No.</strong></div>
+                <div>
+                    <Link to={`/blocks/${item.number}`}>
+                        {item.number}
+                    </Link>
+                </div>
+            </Col>
+            <Col xs={6}>
+                <div><strong>Txs No. and Timestamp</strong></div>
+                Contains {item.transactions.length} txs, created at {item.timestamp}
+            </Col>
+            <Col xs={2}>
+                <div><strong>Total Gas Used</strong></div>
+                <div ><span className='gas'>{item.gasUsed} M</span></div>
+            </Col>
+        </Row>
+        )
+    })
+
+    const transactionsComponent = transactions.map((ite,idx) => {
+        return (
+            <Row key={idx}>
+                <Col xs={1}><i className="fa-solid fa-note-sticky fs-4"></i></Col>
+                <Col xs={4}>
+                    <div><strong>Txn Hash.</strong></div>
+                    <div>
+                        <Link to={`/txs/${ite.hash}`}>
+                            {ite.hash.slice(0,12)}...
+                        </Link>
+                    </div>
+                </Col>
+                <Col xs={5}>
+                    <div><strong>From </strong> {ite.from.slice(0,12)}...</div>
+                    <div><strong>To </strong>{ite.to.slice(0,12)}...</div>
+                </Col>
+                <Col xs={2}>
+                    <div><strong>Value</strong></div>
+                    <div ><span className='gas'>{ite.value.slice(0,4)} ETH</span></div>
+                </Col>
+                    
+            </Row>
+        )
+    })
 
     useEffect(()=> {
         //Gets block information.
@@ -66,8 +116,10 @@ function LastTables(props) {
         }
 
         async function main(){
+            setLoading(true)
             const transa = await generateBlocks()
-            generateTransactions(transa)              
+            await generateTransactions(transa)
+            setLoading(false)              
         }
 
         main()
@@ -84,25 +136,13 @@ function LastTables(props) {
                             </Col>
                         </Row>
 
-                        {blocks.map( (item, index) => {
-                            return (
-                            <Row key={index}>
-                                <Col xs={1}><i className="fa-solid fa-cube fs-4"></i></Col>
-                                <Col xs={3}>
-                                    <div><strong>Block No.</strong></div>
-                                    <div>{item.number}</div>
+                        {loading ?(
+                            <Row>
+                                <Col className='d-flex justify-content-center align-items-center'>
+                                    Loading blocks <Spinner animation="grow" size="md" className='ms-2'/> 
                                 </Col>
-                                <Col xs={6}>
-                                    <div><strong>Txs No. and Timestamp</strong></div>
-                                    Contains {item.transactions.length} txs, created at {item.timestamp}
-                                </Col>
-                                <Col xs={2}>
-                                    <div><strong>Total Gas Used</strong></div>
-                                    <div ><span className='gas'>{item.gasUsed} M</span></div>
-                                </Col>
-                            </Row>
-                            )
-                        })}
+                            </Row> 
+                        ): blocksComponent}
                         <Row>
                             <Col  className=' d-flex justify-content-center'>
                                 <Link to={'/blocks'}>
@@ -119,26 +159,13 @@ function LastTables(props) {
                                 Last Transactions
                             </Col>
                         </Row>
-                        {transactions.map((ite,idx) => {
-                            return (
-                                <Row key={idx}>
-                                    <Col xs={1}><i className="fa-solid fa-note-sticky fs-4"></i></Col>
-                                    <Col xs={4}>
-                                        <div><strong>Txn No.</strong></div>
-                                        <div>{ite.hash.slice(0,12)}...</div>
-                                    </Col>
-                                    <Col xs={5}>
-                                        <div><strong>From </strong> {ite.from.slice(0,12)}...</div>
-                                        <div><strong>To </strong>{ite.to.slice(0,12)}...</div>
-                                    </Col>
-                                    <Col xs={2}>
-                                        <div><strong>Value</strong></div>
-                                        <div ><span className='gas'>{ite.value.slice(0,4)} ETH</span></div>
-                                    </Col>
-                                        
-                                </Row>
-                            )
-                        })}
+                        {loading ?(
+                            <Row>
+                                <Col className='d-flex justify-content-center align-items-center'>
+                                    Loading transactions <Spinner animation="grow" size="md" className='ms-2'/> 
+                                </Col>
+                            </Row> 
+                        ): transactionsComponent}
                         <Row>
                             <Col className=' d-flex justify-content-center'>
                                 <Link to={'/txs'}>
@@ -149,7 +176,6 @@ function LastTables(props) {
                     </Container>
                 </Col>
             </Row>
-            
         </Container>
   )
 }

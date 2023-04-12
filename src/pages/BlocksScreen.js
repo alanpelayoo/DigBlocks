@@ -1,14 +1,20 @@
 import React, { useEffect, useState } from 'react'
 
-import {Button, Container, Form, Row, Col, Pagination} from 'react-bootstrap';
+import {Button, Container, Form, Row, Col, Pagination, Spinner} from 'react-bootstrap';
 
 import alchemy from '../alchemy_server';
+import { Link, useNavigate } from 'react-router-dom'
 
 function BlocksScreen() {
   const [blocks, setBlocks] = useState([])
   const [numberB, setNumberB] = useState(5)
   const [page, setPage] = useState("1")
   const [pages, setPages] = useState({1:[]})
+  const [loading, setLoading] = useState(false)
+  const [search, setSearch] = useState("")
+  const [badSearch, setbadSearch] = useState(false)
+
+  const navigate = useNavigate();
 
   const transformGas = (gas) => {
     gas = parseInt(gas._hex, 16).toString()//wei
@@ -16,6 +22,14 @@ function BlocksScreen() {
     return gas
   }
 
+  const submitHandler = (e) => {
+    e.preventDefault()
+    if(!search){
+      setbadSearch(true)
+    }else{
+      navigate(`/blocks/${search}`);
+    }
+  }
   
   useEffect(() =>{
     
@@ -25,9 +39,9 @@ function BlocksScreen() {
     }
 
     async function generateBlocks(){
-      console.log("generating blocks")
+      setLoading(true)
+      
       const latestBlock = await alchemy.core.getBlockNumber();
-      const localBlocks = []
       
       for (let index = 0; index < 50; index++) {
         const currentBlock = latestBlock - index
@@ -36,11 +50,11 @@ function BlocksScreen() {
         responeBlock = {...responeBlock, gasUsed: transformGas(responeBlock.gasUsed), gasLimit: transformGas(responeBlock.gasLimit)}
         setBlocks(prevState => [...prevState, responeBlock])
       }
-      console.log("Finished generating blocks")
+      
     }
 
     function generatePages(){
-      console.log("generating pages")
+      
       let page = 0
       const pagesC = {}
       const blocksCopy = [...blocks]
@@ -67,9 +81,11 @@ function BlocksScreen() {
       setPage(1)
       if(blocks.length === 0){
         await generateBlocks()
-      }
-      generatePages()
-      
+        generatePages()
+        setLoading(false)
+      }else{
+        generatePages()
+      }    
     }
     
     main()
@@ -82,15 +98,18 @@ function BlocksScreen() {
       <h3>Search for specifics block.</h3>
 
       <Container className='d-flex justify-content-center' fluid>
-        <Form className='seach-form'>
-          <Form.Control placeholder="Block number or hash"/>
+        <Form className='seach-form' onSubmit={submitHandler} >
+          <Form.Control placeholder="Block number or hash" value={search} onChange={(e) => setSearch(e.target.value)} />
+          
           <Button variant="primary ms-3" type="submit" className='d-flex align-items-center'>
             <i className="fa-solid fa-magnifying-glass icon-button me-1"></i> Search
           </Button>
         </Form>
+        
       </Container>
+      {badSearch ? <p className='empty-search mt-1'>Your search was empty lol. 🚨</p> : null}
 
-      <Container fluid className='mt-5'>
+      <Container fluid className='mt-3'>
         <Row>
           <Col className='bg-light me-md-3 table' >
             <Container fluid>
@@ -126,7 +145,11 @@ function BlocksScreen() {
                   <Col xs={1} md={1}><i className="fa-solid fa-cube fs-4"></i></Col>
                   <Col xs={3} md={1}>
                       <div><strong>Block No.</strong></div>
-                      <div>{item.number}</div>
+                      <div>
+                        <Link to={`/blocks/${item.number}`}>
+                          {item.number}
+                        </Link>
+                      </div>
                   </Col>
                   <Col xs={6} md={3} >
                       <div><strong>Txs No. and Timestamp</strong></div>
@@ -134,7 +157,11 @@ function BlocksScreen() {
                   </Col>
                   <Col  md={2} className="d-none d-md-block">
                       <div><strong>Hash</strong></div>
-                      <div>{item.hash.slice(0,20)}..</div>
+                      <div>
+                        <Link to={`/blocks/${item.hash}`}>
+                          {item.hash.slice(0,20)}..
+                        </Link>
+                      </div>
                   </Col>
                   <Col  md={2} className="d-none d-md-block">
                       <div><strong>Miner</strong></div>
@@ -156,16 +183,24 @@ function BlocksScreen() {
             </Container>
           </Col>
         </Row>
-        <Pagination>
-          {Object.keys(pages).map((it,idx)=>{
-            return(
-              <Pagination.Item key={idx} active={parseInt(it) === parseInt(page)} onClick={() => setPage(it)}>
-                {it}
-              </Pagination.Item> 
-            )
-           })
-          }
-        </Pagination>
+        {loading ? (
+          <div>
+            Loading all blocks <Spinner animation="grow" size="sm" /> 
+          </div>
+          
+        ):(
+          <Pagination>
+            {Object.keys(pages).map((it,idx)=>{
+              return(
+                <Pagination.Item key={idx} active={parseInt(it) === parseInt(page)} onClick={() => setPage(it)}>
+                  {it}
+                </Pagination.Item> 
+              )
+            })
+            }
+          </Pagination>
+        )}
+        
         
       </Container>
     </div>

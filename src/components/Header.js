@@ -9,15 +9,18 @@ function Header() {
   return (
     <Navbar bg="primary" variant="dark">
         <Container >
-          <Navbar.Brand href="#home" className='d-flex'>
-            <img
-              alt=""
-              src="/logos/white.png"
-              width="90"
-              height="auto"
-              className="d-inline-block align-top"
-            />{' '}
-          </Navbar.Brand>
+          <LinkContainer to=''>
+            <Navbar.Brand className='d-flex'>
+              <img
+                alt=""
+                src="/logos/white.png"
+                width="90"
+                height="auto"
+                className="d-inline-block align-top"
+              />{' '}
+            </Navbar.Brand>
+          </LinkContainer> 
+          
           <Navbar.Collapse id="basic-navbar-nav" className='links'>
             <Nav className="me-auto d-none d-md-flex">
               <LinkContainer to=''> 
@@ -28,12 +31,6 @@ function Header() {
               </LinkContainer>
               <LinkContainer to='/txs'> 
                 <Nav.Link>Transactions</Nav.Link>
-              </LinkContainer>
-              <LinkContainer to='/addresses'> 
-                <Nav.Link>Addresses</Nav.Link>
-              </LinkContainer>
-              <LinkContainer to='/nfts'> 
-                <Nav.Link>NFTs</Nav.Link>
               </LinkContainer>
             </Nav>
           </Navbar.Collapse>
